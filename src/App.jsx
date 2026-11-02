@@ -7,16 +7,10 @@ const BOAT_1_CAL_ID = "c_64a563c76f037a43bb5816c4ddf724d6025b18faf4a2aa9a3c35b56
 const BOAT_2_CAL_ID = "c_5fb23aa1750177240b46b54ccb1782b68e8ab0468957d63ac1219a8a7296b963@group.calendar.google.com"; // Larkin Boats
 
 const DEFAULT_VEHICLES = [
-  { id: 'truck-hansen', name: 'Hansen Lab Truck', brand: 'Ford', model: 'F-250 Super Duty', category: 'truck', location: 'Campus Parking Bay A', keyLocation: 'Main Office Cabinet #1', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'truck-larkin', name: 'Larkin Lab Truck', brand: 'Chevrolet', model: 'Silverado 2500', category: 'truck', location: 'Campus Parking Bay B', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'boat-hansen', name: 'Hansen/Walsh Research Boat', brand: 'Boston Whaler', model: 'Montauk 170', category: 'boat', location: 'Dock Station 1', keyLocation: 'Hansen Boathouse Locker', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'boat-larkin', name: 'Larkin Research Boat', brand: 'AlumaCraft', model: 'Competitor 165', category: 'boat', location: 'Dock Station 2', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' }
-];
-
-const CATEGORIES = [
-  { id: 'all', label: 'All Vehicles & Boats' },
-  { id: 'truck', label: 'Trucks' },
-  { id: 'boat', label: 'Boats' }
+  { id: 'truck-hansen', name: 'Hansen Lab Truck', brand: 'Ford', model: 'F-250 Super Duty', category: 'Truck', location: 'Campus Parking Bay A', keyLocation: 'Main Office Cabinet #1', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
+  { id: 'truck-larkin', name: 'Larkin Lab Truck', brand: 'Chevrolet', model: 'Silverado 2500', category: 'Truck', location: 'Campus Parking Bay B', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
+  { id: 'boat-hansen', name: 'Hansen/Walsh Research Boat', brand: 'Boston Whaler', model: 'Montauk 170', category: 'Boat', location: 'Dock Station 1', keyLocation: 'Hansen Boathouse Locker', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
+  { id: 'boat-larkin', name: 'Larkin Research Boat', brand: 'AlumaCraft', model: 'Competitor 165', category: 'Boat', location: 'Dock Station 2', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' }
 ];
 
 export default function App() {
@@ -48,7 +42,6 @@ export default function App() {
         if (res.ok && data.results && data.results.length > 0) {
           const filteredResults = data.results.filter((page) => {
             const props = page.properties || {};
-            // Filter by "App Target" column (matches "Vehicle Fleet", "Vehicle", or "Boat")
             const targetVal = (props['App Target']?.select?.name || props['App Target']?.rich_text?.[0]?.plain_text || '').toLowerCase();
             return !targetVal || targetVal.includes('vehicle') || targetVal.includes('fleet') || targetVal.includes('boat');
           });
@@ -69,20 +62,20 @@ export default function App() {
               photoUrl = fileObj.file?.url || fileObj.external?.url || '';
             }
 
-            // Parse exact Category string from Notion (supports Truck, Boat, Trailer, UTV, Kayak, etc.)
-const category = props['Category']?.select?.name || 
-                 props['Category']?.rich_text?.[0]?.plain_text || 
-                 'Other';
-// Dynamically derive filter categories from whatever exists in your fleet
-const dynamicCategories = ['all', ...Array.from(new Set(vehicles.map(v => v.category)))];
+            // Read the raw category value from Notion
+            const category = props['Category']?.select?.name || 
+                             props['Category']?.rich_text?.[0]?.plain_text || 
+                             'Vehicle';
 
             const brand = props['Brand']?.rich_text?.[0]?.plain_text || props['Brand']?.select?.name || '';
             const model = props['Model']?.rich_text?.[0]?.plain_text || props['Model']?.select?.name || '';
-            // NEW (Supports Multi-Select, Select, and Text)
-const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(', ') || 
-               props['Key Location']?.select?.name || 
-               props['Key Location']?.rich_text?.[0]?.plain_text || 
-               'Contact Lab Manager';
+            
+            // Read multi-select, select, or text for Key Location
+            const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(', ') || 
+                           props['Key Location']?.select?.name || 
+                           props['Key Location']?.rich_text?.[0]?.plain_text || 
+                           'Contact Lab Manager';
+
             const location = props['Location']?.select?.name || props['Location']?.rich_text?.[0]?.plain_text || 'Field Garage';
 
             return {
@@ -112,6 +105,9 @@ const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(
     fetchNotionData();
   }, []);
 
+  // Dynamically derive filter options from all unique categories present in the vehicles state
+  const dynamicCategories = ['all', ...Array.from(new Set(vehicles.map(v => v.category))).filter(Boolean)];
+
   const toggleVehicleSelection = (vehicle) => {
     setBookingSuccess(false);
     setSelectedVehicles((prev) => {
@@ -125,7 +121,7 @@ const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(
   };
 
   const filteredVehicles = vehicles.filter((v) => {
-    const matchesFilter = activeFilter === 'all' || v.category === activeFilter;
+    const matchesFilter = activeFilter === 'all' || v.category.toLowerCase() === activeFilter.toLowerCase();
     const matchesSearch = v.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (v.brand && v.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
                           (v.model && v.model.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -136,12 +132,14 @@ const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(
 
   const getTargetCalendarId = (vehicle) => {
     const nameLower = vehicle.name.toLowerCase();
-    if (vehicle.category === 'truck') {
-      if (nameLower.includes('larkin')) return TRUCK_2_CAL_ID;
-      return TRUCK_1_CAL_ID;
-    } else {
+    const catLower = vehicle.category.toLowerCase();
+    
+    if (catLower.includes('boat')) {
       if (nameLower.includes('larkin')) return BOAT_2_CAL_ID;
       return BOAT_1_CAL_ID;
+    } else {
+      if (nameLower.includes('larkin')) return TRUCK_2_CAL_ID;
+      return TRUCK_1_CAL_ID;
     }
   };
 
@@ -157,7 +155,7 @@ const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(
       const calId = getTargetCalendarId(vehicle);
       const title = encodeURIComponent(`Reservation: ${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
       const details = encodeURIComponent(
-        `Reserved by: ${userName} (${userEmail})\nVehicle/Boat: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nCategory: ${vehicle.category.toUpperCase()}\nKey Location: ${vehicle.keyLocation}\nParking/Dock: ${vehicle.location}\nDuration: ${startDate} ${startTime} to ${finalEndDate} ${endTime}\nTrip Notes: ${notes}\nNotion Maintenance Records: ${vehicle.notionUrl || 'N/A'}`
+        `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nCategory: ${vehicle.category.toUpperCase()}\nKey Location: ${vehicle.keyLocation}\nParking/Dock: ${vehicle.location}\nDuration: ${startDate} ${startTime} to ${finalEndDate} ${endTime}\nTrip Notes: ${notes}\nNotion Maintenance Records: ${vehicle.notionUrl || 'N/A'}`
       );
       const location = encodeURIComponent(`Key Location: ${vehicle.keyLocation} | Station: ${vehicle.location}`);
 
@@ -181,13 +179,13 @@ const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(
       <header style={{ maxWidth: '1200px', margin: '0 auto 24px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', paddingBottom: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0, color: '#ffffff' }}>Vehicle & Boat Reservation Portal</h1>
+            <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0, color: '#ffffff' }}>Vehicle & Fleet Reservation Portal</h1>
             <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', border: notionConnected ? '1px solid #059669' : '1px solid #d97706', backgroundColor: notionConnected ? '#064e3b' : '#78350f', color: notionConnected ? '#34d399' : '#fde68a' }}>
               {notionConnected ? 'Live Notion Sync' : 'Default Asset Mode'}
             </span>
           </div>
           <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>
-            Multi-Vehicle Field Operations Portal for Trucks & Research Boats
+            Multi-Vehicle Field Operations Portal for Trucks, Boats, & Fleet Equipment
           </p>
         </div>
 
@@ -210,29 +208,31 @@ const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(
           <div style={{ backgroundColor: '#1e293b', padding: '16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center' }}>
             <input 
               type="text"
-              placeholder="Search make, model, truck, boat, or key..."
+              placeholder="Search make, model, category, or key..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ width: '280px', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 12px', color: '#f8fafc' }}
+              style={{ width: '260px', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 12px', color: '#f8fafc' }}
             />
 
-            <div style={{ display: 'flex', gap: '6px' }}>
-              {CATEGORIES.map((cat) => (
+            {/* Dynamic Category Filter Bar */}
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {dynamicCategories.map((cat) => (
                 <button
-                  key={cat.id}
-                  onClick={() => setActiveFilter(cat.id)}
+                  key={cat}
+                  onClick={() => setActiveFilter(cat)}
                   style={{
                     padding: '6px 12px',
                     borderRadius: '6px',
                     fontSize: '12px',
                     border: 'none',
                     cursor: 'pointer',
-                    backgroundColor: activeFilter === cat.id ? '#2563eb' : '#0f172a',
+                    backgroundColor: activeFilter === cat ? '#2563eb' : '#0f172a',
                     color: '#ffffff',
-                    fontWeight: activeFilter === cat.id ? 'bold' : 'normal'
+                    fontWeight: activeFilter === cat ? 'bold' : 'normal',
+                    textTransform: 'capitalize'
                   }}
                 >
-                  {cat.label}
+                  {cat === 'all' ? 'All Fleet' : cat}
                 </button>
               ))}
             </div>
@@ -298,6 +298,10 @@ const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(
                       <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#60a5fa' }}>{vehicle.name}</div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div>
+                          <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Category</label>
+                          <input type="text" value={vehicle.category} onChange={(e) => handleVehicleUpdate(vehicle.id, 'category', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
+                        </div>
+                        <div>
                           <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Brand / Make</label>
                           <input type="text" value={vehicle.brand || ''} onChange={(e) => handleVehicleUpdate(vehicle.id, 'brand', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
                         </div>
@@ -318,7 +322,7 @@ const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(
                   ))}
                 </div>
               ) : (
-                <p style={{ fontSize: '13px', color: '#94a3b8' }}>Select trucks or boats from the fleet grid to edit details.</p>
+                <p style={{ fontSize: '13px', color: '#94a3b8' }}>Select assets from the fleet grid to edit details.</p>
               )}
             </div>
           ) : (
@@ -410,7 +414,7 @@ const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', color: '#94a3b8', padding: '32px 0' }}>
-                  Select one or more trucks/boats from the fleet grid to reserve.
+                  Select one or more assets from the fleet grid to reserve.
                 </div>
               )}
             </div>
