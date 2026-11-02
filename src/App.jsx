@@ -74,7 +74,11 @@ export default function App() {
 
             const brand = props['Brand']?.rich_text?.[0]?.plain_text || props['Brand']?.select?.name || '';
             const model = props['Model']?.rich_text?.[0]?.plain_text || props['Model']?.select?.name || '';
-            const keyLoc = props['Key Location']?.rich_text?.[0]?.plain_text || props['Key Location']?.select?.name || 'Contact Lab Manager';
+            // NEW (Supports Multi-Select, Select, and Text)
+const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(', ') || 
+               props['Key Location']?.select?.name || 
+               props['Key Location']?.rich_text?.[0]?.plain_text || 
+               'Contact Lab Manager';
             const location = props['Location']?.select?.name || props['Location']?.rich_text?.[0]?.plain_text || 'Field Garage';
 
             return {
