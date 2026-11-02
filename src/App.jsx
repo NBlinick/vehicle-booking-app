@@ -7,10 +7,10 @@ const BOAT_1_CAL_ID = "c_64a563c76f037a43bb5816c4ddf724d6025b18faf4a2aa9a3c35b56
 const BOAT_2_CAL_ID = "c_5fb23aa1750177240b46b54ccb1782b68e8ab0468957d63ac1219a8a7296b963@group.calendar.google.com"; // Larkin Boats
 
 const DEFAULT_VEHICLES = [
-  { id: 'truck-hansen', name: 'Hansen Lab Truck', category: 'truck', location: 'Campus Parking Bay A', keyLocation: 'Main Office Cabinet #1', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'truck-larkin', name: 'Larkin Lab Truck', category: 'truck', location: 'Campus Parking Bay B', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'boat-hansen', name: 'Hansen/Walsh Research Boat', category: 'boat', location: 'Dock Station 1', keyLocation: 'Hansen Boathouse Locker', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'boat-larkin', name: 'Larkin Research Boat', category: 'boat', location: 'Dock Station 2', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' }
+  { id: 'truck-hansen', name: 'Hansen Lab Truck', brand: 'Ford', model: 'F-250 Super Duty', category: 'truck', location: 'Campus Parking Bay A', keyLocation: 'Main Office Cabinet #1', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
+  { id: 'truck-larkin', name: 'Larkin Lab Truck', brand: 'Chevrolet', model: 'Silverado 2500', category: 'truck', location: 'Campus Parking Bay B', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
+  { id: 'boat-hansen', name: 'Hansen/Walsh Research Boat', brand: 'Boston Whaler', model: 'Montauk 170', category: 'boat', location: 'Dock Station 1', keyLocation: 'Hansen Boathouse Locker', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
+  { id: 'boat-larkin', name: 'Larkin Research Boat', brand: 'AlumaCraft', model: 'Competitor 165', category: 'boat', location: 'Dock Station 2', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' }
 ];
 
 const CATEGORIES = [
@@ -65,12 +65,16 @@ export default function App() {
             const rawCat = (props['Category']?.select?.name || props['Category']?.rich_text?.[0]?.plain_text || 'truck').toLowerCase();
             const category = rawCat.includes('boat') ? 'boat' : 'truck';
 
+            const brand = props['Brand']?.rich_text?.[0]?.plain_text || props['Brand']?.select?.name || '';
+            const model = props['Model']?.rich_text?.[0]?.plain_text || props['Model']?.select?.name || '';
             const keyLoc = props['Key Location']?.rich_text?.[0]?.plain_text || props['Key Location']?.select?.name || 'Contact Lab Manager';
             const location = props['Location']?.select?.name || props['Location']?.rich_text?.[0]?.plain_text || 'Field Garage';
 
             return {
               id: page.id,
               name: name,
+              brand: brand,
+              model: model,
               category: category,
               location: location,
               keyLocation: keyLoc,
@@ -84,7 +88,7 @@ export default function App() {
           setNotionConnected(true);
           setNotionStatusMsg('Connected to Notion Database');
         } else {
-          setNotionStatusMsg(data.message || 'Displaying local vehicle data.');
+          setNotionStatusMsg(data.message || 'Displaying local fallback vehicle data.');
         }
       } catch (err) {
         setNotionStatusMsg('Local dev mode: serverless /api/notion runs when published to Vercel.');
@@ -108,6 +112,8 @@ export default function App() {
   const filteredVehicles = vehicles.filter((v) => {
     const matchesFilter = activeFilter === 'all' || v.category === activeFilter;
     const matchesSearch = v.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (v.brand && v.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                          (v.model && v.model.toLowerCase().includes(searchQuery.toLowerCase())) ||
                           v.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           v.keyLocation.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
@@ -134,9 +140,9 @@ export default function App() {
 
     const links = selectedVehicles.map((vehicle) => {
       const calId = getTargetCalendarId(vehicle);
-      const title = encodeURIComponent(`Reservation: ${vehicle.name}`);
+      const title = encodeURIComponent(`Reservation: ${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
       const details = encodeURIComponent(
-        `Reserved by: ${userName} (${userEmail})\nVehicle/Boat: ${vehicle.name}\nCategory: ${vehicle.category.toUpperCase()}\nKey Location: ${vehicle.keyLocation}\nParking/Dock: ${vehicle.location}\nDuration: ${startDate} ${startTime} to ${finalEndDate} ${endTime}\nTrip Notes: ${notes}\nNotion Maintenance Records: ${vehicle.notionUrl || 'N/A'}`
+        `Reserved by: ${userName} (${userEmail})\nVehicle/Boat: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nCategory: ${vehicle.category.toUpperCase()}\nKey Location: ${vehicle.keyLocation}\nParking/Dock: ${vehicle.location}\nDuration: ${startDate} ${startTime} to ${finalEndDate} ${endTime}\nTrip Notes: ${notes}\nNotion Maintenance Records: ${vehicle.notionUrl || 'N/A'}`
       );
       const location = encodeURIComponent(`Key Location: ${vehicle.keyLocation} | Station: ${vehicle.location}`);
 
@@ -189,10 +195,10 @@ export default function App() {
           <div style={{ backgroundColor: '#1e293b', padding: '16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center' }}>
             <input 
               type="text"
-              placeholder="Search trucks, boats, or key location..."
+              placeholder="Search make, model, truck, boat, or key..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ width: '260px', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 12px', color: '#f8fafc' }}
+              style={{ width: '280px', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 12px', color: '#f8fafc' }}
             />
 
             <div style={{ display: 'flex', gap: '6px' }}>
@@ -254,6 +260,9 @@ export default function App() {
                     )}
 
                     <div style={{ fontWeight: '600', fontSize: '15px', color: '#f8fafc' }}>{vehicle.name}</div>
+                    {(vehicle.brand || vehicle.model) && (
+                      <div style={{ fontSize: '11px', color: '#93c5fd', marginTop: '2px' }}>{[vehicle.brand, vehicle.model].filter(Boolean).join(' · ')}</div>
+                    )}
                     <div style={{ fontSize: '12px', color: '#38bdf8', marginTop: '4px' }}>🔑 Key: {vehicle.keyLocation}</div>
                     <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>📍 {vehicle.location}</div>
                   </div>
@@ -273,6 +282,14 @@ export default function App() {
                     <div key={vehicle.id} style={{ borderBottom: '1px solid #334155', paddingBottom: '12px' }}>
                       <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#60a5fa' }}>{vehicle.name}</div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Brand / Make</label>
+                          <input type="text" value={vehicle.brand || ''} onChange={(e) => handleVehicleUpdate(vehicle.id, 'brand', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Model</label>
+                          <input type="text" value={vehicle.model || ''} onChange={(e) => handleVehicleUpdate(vehicle.id, 'model', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
+                        </div>
                         <div>
                           <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Key Location</label>
                           <input type="text" value={vehicle.keyLocation} onChange={(e) => handleVehicleUpdate(vehicle.id, 'keyLocation', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
@@ -301,7 +318,10 @@ export default function App() {
                     {selectedVehicles.map((v) => (
                       <div key={v.id} style={{ padding: '10px', backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #334155' }}>
                         <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#fff' }}>{v.name}</div>
-                        <div style={{ fontSize: '11px', color: '#38bdf8' }}>🔑 Key: {v.keyLocation}</div>
+                        {(v.brand || v.model) && (
+                          <div style={{ fontSize: '11px', color: '#93c5fd' }}>{[v.brand, v.model].filter(Boolean).join(' · ')}</div>
+                        )}
+                        <div style={{ fontSize: '11px', color: '#38bdf8', marginTop: '2px' }}>🔑 Key: {v.keyLocation}</div>
                         <div style={{ fontSize: '11px', color: '#94a3b8' }}>📍 Station: {v.location}</div>
                         {v.notionUrl && (
                           <a href={v.notionUrl} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: '#60a5fa', textDecoration: 'underline', marginTop: '4px', display: 'inline-block' }}>
