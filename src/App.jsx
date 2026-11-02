@@ -46,7 +46,14 @@ export default function App() {
         const data = await res.json();
 
         if (res.ok && data.results && data.results.length > 0) {
-          const parsed = data.results.map((page) => {
+          const filteredResults = data.results.filter((page) => {
+            const props = page.properties || {};
+            // Filter by "App Target" column (matches "Vehicle Fleet", "Vehicle", or "Boat")
+            const targetVal = (props['App Target']?.select?.name || props['App Target']?.rich_text?.[0]?.plain_text || '').toLowerCase();
+            return !targetVal || targetVal.includes('vehicle') || targetVal.includes('fleet') || targetVal.includes('boat');
+          });
+
+          const parsed = filteredResults.map((page) => {
             const props = page.properties || {};
             
             let name = 'Unnamed Vehicle';
