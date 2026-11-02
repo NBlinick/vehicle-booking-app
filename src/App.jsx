@@ -69,8 +69,12 @@ export default function App() {
               photoUrl = fileObj.file?.url || fileObj.external?.url || '';
             }
 
-            const rawCat = (props['Category']?.select?.name || props['Category']?.rich_text?.[0]?.plain_text || 'truck').toLowerCase();
-            const category = rawCat.includes('boat') ? 'boat' : 'truck';
+            // Parse exact Category string from Notion (supports Truck, Boat, Trailer, UTV, Kayak, etc.)
+const category = props['Category']?.select?.name || 
+                 props['Category']?.rich_text?.[0]?.plain_text || 
+                 'Other';
+// Dynamically derive filter categories from whatever exists in your fleet
+const dynamicCategories = ['all', ...Array.from(new Set(vehicles.map(v => v.category)))];
 
             const brand = props['Brand']?.rich_text?.[0]?.plain_text || props['Brand']?.select?.name || '';
             const model = props['Model']?.rich_text?.[0]?.plain_text || props['Model']?.select?.name || '';
