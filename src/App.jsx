@@ -10,8 +10,17 @@ const DEFAULT_VEHICLES = [
   { id: 'truck-hansen', name: 'Hansen Lab Truck', brand: 'Ford', model: 'F-250 Super Duty', category: 'Truck', location: 'Campus Parking Bay A', keyLocation: 'Main Office Cabinet #1', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
   { id: 'truck-larkin', name: 'Larkin Lab Truck', brand: 'Chevrolet', model: 'Silverado 2500', category: 'Truck', location: 'Campus Parking Bay B', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
   { id: 'boat-hansen', name: 'Hansen/Walsh Research Boat', brand: 'Boston Whaler', model: 'Montauk 170', category: 'Boat', location: 'Dock Station 1', keyLocation: 'Hansen Boathouse Locker', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'boat-larkin', name: 'Larkin Research Boat', brand: 'AlumaCraft', model: 'Competitor 165', category: 'Boat', location: 'Dock Station 2', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' }
+  { id: 'craft-1', name: 'Field Research Canoe', brand: 'Old Town', model: 'Discovery 169', category: 'Non-Motorized Craft', location: 'Boathouse Storage Rack 3', keyLocation: 'Boathouse Padlock #2', status: 'available', notionUrl: '', imageUrl: '' }
 ];
+
+// Priority rank helper: Trucks (1) -> Boats (2) -> Non-Motorized Craft (3) -> Anything Else (4)
+function getCategoryRank(category) {
+  const c = (category || '').toLowerCase();
+  if (c.includes('truck')) return 1;
+  if (c.includes('boat') || c.includes('skiff') || c.includes('vessel')) return 2;
+  if (c.includes('non-motorized') || c.includes('canoe') || c.includes('kayak') || c.includes('paddle')) return 3;
+  return 4;
+}
 
 export default function App() {
   const [vehicles, setVehicles] = useState(DEFAULT_VEHICLES);
@@ -62,7 +71,6 @@ export default function App() {
               photoUrl = fileObj.file?.url || fileObj.external?.url || '';
             }
 
-            // Read the raw category value from Notion
             const category = props['Category']?.select?.name || 
                              props['Category']?.rich_text?.[0]?.plain_text || 
                              'Vehicle';
@@ -70,7 +78,6 @@ export default function App() {
             const brand = props['Brand']?.rich_text?.[0]?.plain_text || props['Brand']?.select?.name || '';
             const model = props['Model']?.rich_text?.[0]?.plain_text || props['Model']?.select?.name || '';
             
-            // Read multi-select, select, or text for Key Location
             const keyLoc = props['Key Location']?.multi_select?.map(item => item.name).join(', ') || 
                            props['Key Location']?.select?.name || 
                            props['Key Location']?.rich_text?.[0]?.plain_text || 
@@ -92,6 +99,14 @@ export default function App() {
             };
           });
 
+          // Sort assets by custom rank: Trucks -> Boats -> Non-Motorized -> Other
+          parsed.sort((a, b) => {
+            const rankA = getCategoryRank(a.category);
+            const rankB = getCategoryRank(b.category);
+            if (rankA !== rankB) return rankA - rankB;
+            return a.name.localeCompare(b.name);
+          });
+
           setVehicles(parsed);
           setNotionConnected(true);
           setNotionStatusMsg('Connected to Notion Database');
@@ -105,8 +120,10 @@ export default function App() {
     fetchNotionData();
   }, []);
 
-  // Dynamically derive filter options from all unique categories present in the vehicles state
-  const dynamicCategories = ['all', ...Array.from(new Set(vehicles.map(v => v.category))).filter(Boolean)];
+  // Dynamically derive unique category buttons, sorted by rank
+  const uniqueCats = Array.from(new Set(vehicles.map(v => v.category))).filter(Boolean);
+  uniqueCats.sort((a, b) => getCategoryRank(a) - getCategoryRank(b));
+  const dynamicCategories = ['all', ...uniqueCats];
 
   const toggleVehicleSelection = (vehicle) => {
     setBookingSuccess(false);
@@ -185,7 +202,7 @@ export default function App() {
             </span>
           </div>
           <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>
-            Multi-Vehicle Field Operations Portal for Trucks, Boats, & Fleet Equipment
+            Multi-Vehicle Field Operations Portal for Trucks, Boats, & Non-Motorized Craft
           </p>
         </div>
 
@@ -214,7 +231,7 @@ export default function App() {
               style={{ width: '260px', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 12px', color: '#f8fafc' }}
             />
 
-            {/* Dynamic Category Filter Bar */}
+            {/* Custom Sorted Category Buttons */}
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {dynamicCategories.map((cat) => (
                 <button
@@ -240,8 +257,8 @@ export default function App() {
 
           <div style={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
             <div style={{ borderBottom: '1px solid #1e293b', paddingBottom: '12px', marginBottom: '16px', fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between' }}>
-              <span>Available Fleet Assets</span>
-              <span style={{ color: '#38bdf8', textTransform: 'none' }}>Click tiles to select multiple assets</span>
+              <span>Available Fleet Assets (Trucks $\rightarrow$ Boats $\rightarrow$ Non-Motorized)</span>
+              <span style={{ color: '#38bdf8', textTransform: 'none' }}>Click tiles to select</span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
@@ -407,7 +424,7 @@ export default function App() {
                       </div>
 
                       <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '8px' }}>
-                        Reserve Selected ({selectedVehicles.length}) Vehicle(s)
+                        Reserve Selected ({selectedVehicles.length}) Asset(s)
                       </button>
                     </form>
                   )}
