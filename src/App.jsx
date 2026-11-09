@@ -17,7 +17,7 @@ const COMBINED_CAL_URL = `https://calendar.google.com/calendar/embed?` +
 const CALENDAR_LIST = [
   { 
     id: 'combined',
-    name: 'See Vehicle Calendars (Combined)', 
+    name: 'Combined View', 
     url: COMBINED_CAL_URL, 
     color: '#34d399',
     isCombined: true
@@ -248,7 +248,7 @@ export default function App() {
       <header style={{ maxWidth: '1400px', margin: '0 auto 16px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', paddingBottom: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0, color: '#ffffff' }}>Vehicle & Reservation Portal</h1>
+            <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0, color: '#ffffff' }}>Vehicle & Boat Reservation Portal</h1>
             <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', border: notionConnected ? '1px solid #059669' : '1px solid #d97706', backgroundColor: notionConnected ? '#064e3b' : '#78350f', color: notionConnected ? '#34d399' : '#fde68a' }}>
               {notionConnected ? 'Live Notion Sync' : 'Default Asset Mode'}
             </span>
@@ -296,7 +296,7 @@ export default function App() {
             color: '#ffffff'
           }}
         >
-          📅 Calendar Viewer (Multi-Calendar)
+          📅 Live Calendar Viewer
         </button>
       </div>
 
@@ -306,7 +306,7 @@ export default function App() {
         </div>
       )}
 
-      {/* TAB 1: VEHICLE ASSETS & BOOKING FORM */}
+      {/* TAB 1: VEHICLES, BOATS & BOOKING FORM */}
       {activeTab === 'assets' && (
         <main style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
           <section>
