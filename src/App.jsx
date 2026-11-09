@@ -207,15 +207,8 @@ export default function App() {
       const calId = getTargetCalendarId(vehicle);
       const title = encodeURIComponent(`${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
       const details = encodeURIComponent(
-        `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nCategory: ${vehicle.category.toUpperCase()}\nKey Location: ${vehicle.keyLocation}\nParking/Dock: ${vehicle.location}\nDuration: ${startDate} ${startTime} to ${finalEndDate} ${endTime}\nTrip Notes: ${notes}\nNotion Maintenance Records: ${vehicle.notionUrl || 'N/A'}`
+        `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nKey Location: ${vehicle.keyLocation}\nVehicle Location: ${vehicle.location}\nTrip Notes: ${notes}\nNotion Maintenance Records: ${vehicle.notionUrl || 'N/A'}`
       );
-      const location = encodeURIComponent(`Key Location: ${vehicle.keyLocation} | Station: ${vehicle.location}`);
-
-      return {
-        vehicleName: vehicle.name,
-        url: `https://calendar.google.com/calendar/render?action=TEMPLATE&src=${encodeURIComponent(calId)}&text=${title}&dates=${startISO}/${endISO}&details=${details}&location=${location}&ctz=America%2FChicago`
-      };
-    });
 
     setGeneratedCalendarLinks(links);
     setBookingSuccess(true);
