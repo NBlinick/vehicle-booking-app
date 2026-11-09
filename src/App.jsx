@@ -432,7 +432,7 @@ export default function App() {
               <div>
                 {selectedVehicles.length > 0 ? (
                   <div>
-                    <h2 style={{ fontSize: '18px', color: ffffff', fontWeight: 'bold', margin: '0 0 8px 0' }}>
+                    <h2 style={{ fontSize: '18px', color: '#ffffff', fontWeight: 'bold', margin: '0 0 8px 0' }}>
                       Selected ({selectedVehicles.length}) Assets
                     </h2>
 
