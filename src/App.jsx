@@ -244,9 +244,9 @@ export default function App() {
     <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', color: '#f8fafc', fontFamily: 'sans-serif', padding: '24px' }}>
       
       {/* Top Header */}
-      <header style={{ maxWidth: '1400px', margin: '0 auto 16px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'right', borderBottom: '1px solid #334155', paddingBottom: '16px' }}>
+      <header style={{ maxWidth: '1400px', margin: '0 auto 16px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', paddingBottom: '16px' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'right', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0, color: '#ffffff' }}>Vehicle & Boat Reservation Portal</h1>
             <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', border: notionConnected ? '1px solid #059669' : '1px solid #d97706', backgroundColor: notionConnected ? '#064e3b' : '#78350f', color: notionConnected ? '#34d399' : '#fde68a' }}>
               {notionConnected ? 'Live Notion Sync' : 'Default Asset Mode'}
@@ -309,7 +309,7 @@ export default function App() {
       {activeTab === 'assets' && (
         <main style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
           <section>
-            <div style={{ backgroundColor: '#1e293b', padding: '16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'right' }}>
+            <div style={{ backgroundColor: '#1e293b', padding: '16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center' }}>
               <input 
                 type="text"
                 placeholder="Search make, model, category, or key..."
@@ -364,7 +364,7 @@ export default function App() {
                       }}
                     >
                       {isSelected && (
-                        <span style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'right', justifyContent: 'right', fontSize: '12px', fontWeight: 'bold' }}>
+                        <span style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold' }}>
                           ✓
                         </span>
                       )}
@@ -372,7 +372,7 @@ export default function App() {
                       {vehicle.imageUrl ? (
                         <img src={vehicle.imageUrl} alt={vehicle.name} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '6px', marginBottom: '8px' }} />
                       ) : (
-                        <div style={{ width: '100%', height: '80px', backgroundColor: '#020617', borderRadius: '6px', marginBottom: '8px', display: 'flex', alignItems: 'right', justifyContent: 'right', fontSize: '12px', color: '#475569', textTransform: 'uppercase' }}>
+                        <div style={{ width: '100%', height: '80px', backgroundColor: '#020617', borderRadius: '6px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#475569', textTransform: 'uppercase' }}>
                           {vehicle.category}
                         </div>
                       )}
@@ -432,7 +432,7 @@ export default function App() {
               <div>
                 {selectedVehicles.length > 0 ? (
                   <div>
-                    <h2 style={{ fontSize: '18px', color: '#ffffff', fontWeight: 'bold', margin: '0 0 8px 0' }}>
+                    <h2 style={{ fontSize: '18px', color: ffffff', fontWeight: 'bold', margin: '0 0 8px 0' }}>
                       Selected ({selectedVehicles.length}) Assets
                     </h2>
 
@@ -459,7 +459,7 @@ export default function App() {
                         </p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           {generatedCalendarLinks.map((link, idx) => (
-                            <a key={idx} href={link.url} target="_blank" rel="noreferrer" style={{ display: 'block', textAlign: 'right', backgroundColor: '#059669', color: '#fff', padding: '10px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                            <a key={idx} href={link.url} target="_blank" rel="noreferrer" style={{ display: 'block', textAlign: 'center', backgroundColor: '#059669', color: '#fff', padding: '10px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
                               Add {link.vehicleName} to Calendar
                             </a>
                           ))}
@@ -516,7 +516,7 @@ export default function App() {
                     )}
                   </div>
                 ) : (
-                  <div style={{ textAlign: 'right', color: '#94a3b8', padding: '32px 0' }}>
+                  <div style={{ textAlign: 'center', color: '#94a3b8', padding: '32px 0' }}>
                     Select one or more assets from the grid to reserve.
                   </div>
                 )}
@@ -548,7 +548,7 @@ export default function App() {
                     }}
                     style={{
                       display: 'flex',
-                      alignItems: 'right',
+                      alignItems: 'center',
                       gap: '10px',
                       padding: '12px 14px',
                       borderRadius: '8px',
