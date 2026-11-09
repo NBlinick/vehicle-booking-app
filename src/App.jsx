@@ -6,38 +6,42 @@ const TRUCK_2_CAL_ID = "c_6br43pl0vad2su7ldibiillg2o@group.calendar.google.com";
 const BOAT_1_CAL_ID = "c_64a563c76f037a43bb5816c4ddf724d6025b18faf4a2aa9a3c35b56ae36039fc@group.calendar.google.com"; // Hansen/Walsh Lab Boats
 const BOAT_2_CAL_ID = "c_5fb23aa1750177240b46b54ccb1782b68e8ab0468957d63ac1219a8a7296b963@group.calendar.google.com"; // Larkin Boats
 
-// Combined Google Calendar URL with showCalendars=1 enabling the left-side checkbox sidebar
+// Combined URL overlaying all 4 calendars with assigned hex colors
 const COMBINED_CAL_URL = `https://calendar.google.com/calendar/embed?` +
   `src=${encodeURIComponent(TRUCK_1_CAL_ID)}&color=%2364748b&` +
   `src=${encodeURIComponent(TRUCK_2_CAL_ID)}&color=%232563eb&` +
   `src=${encodeURIComponent(BOAT_1_CAL_ID)}&color=%23059669&` +
   `src=${encodeURIComponent(BOAT_2_CAL_ID)}&color=%23dc2626&` +
-  `showCalendars=1&` +
   `ctz=America%2FChicago`;
 
 const CALENDAR_LIST = [
   { 
+    id: 'combined',
     name: 'All Fleet Calendars (Combined)', 
     url: COMBINED_CAL_URL, 
-    isCombined: true,
-    color: '#34d399' 
+    color: '#34d399',
+    isCombined: true
   },
   { 
+    id: 'hansen-truck',
     name: 'Hansen Truck Calendar', 
     url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_1_CAL_ID)}&color=%2364748b&ctz=America%2FChicago`, 
     color: '#64748b' 
   },
   { 
+    id: 'larkin-truck',
     name: 'Larkin Truck Calendar', 
     url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_2_CAL_ID)}&color=%232563eb&ctz=America%2FChicago`, 
     color: '#2563eb' 
   },
   { 
+    id: 'hansen-boat',
     name: 'Hansen/Walsh Boat Calendar', 
     url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(BOAT_1_CAL_ID)}&color=%23059669&ctz=America%2FChicago`, 
     color: '#059669' 
   },
   { 
+    id: 'larkin-boat',
     name: 'Larkin Boat Calendar', 
     url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(BOAT_2_CAL_ID)}&color=%23dc2626&ctz=America%2FChicago`, 
     color: '#dc2626' 
@@ -45,10 +49,10 @@ const CALENDAR_LIST = [
 ];
 
 const DEFAULT_VEHICLES = [
-  { id: 'truck-hansen', name: 'Hansen Lab Truck', brand: 'Ford', model: 'F-250 Super Duty', category: 'Truck', location: 'Campus Parking Bay A', keyLocation: 'Main Office Cabinet #1', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'truck-larkin', name: 'Larkin Lab Truck', brand: 'Chevrolet', model: 'Silverado 2500', category: 'Truck', location: 'Campus Parking Bay B', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'boat-hansen', name: 'Hansen/Walsh Research Boat', brand: 'Boston Whaler', model: 'Montauk 170', category: 'Boat', location: 'Dock Station 1', keyLocation: 'Hansen Boathouse Locker', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
-  { id: 'craft-1', name: 'Field Research Canoe', brand: 'Old Town', model: 'Discovery 169', category: 'Non-Motorized Craft', location: 'Boathouse Storage Rack 3', keyLocation: 'Boathouse Padlock #2', status: 'available', notionUrl: '', imageUrl: '' }
+  { id: 'truck-hansen', name: 'Hansen Lab Truck', brand: 'Ford', model: 'F-250 Super Duty', category: 'Truck', location: 'Campus Parking Bay A', keyLocation: 'Main Office Cabinet #1', status: 'available', imageUrl: '' },
+  { id: 'truck-larkin', name: 'Larkin Lab Truck', brand: 'Chevrolet', model: 'Silverado 2500', category: 'Truck', location: 'Campus Parking Bay B', keyLocation: 'Larkin Lab Key Box', status: 'available', imageUrl: '' },
+  { id: 'boat-hansen', name: 'Hansen/Walsh Research Boat', brand: 'Boston Whaler', model: 'Montauk 170', category: 'Boat', location: 'Dock Station 1', keyLocation: 'Hansen Boathouse Locker', status: 'available', imageUrl: '' },
+  { id: 'craft-1', name: 'Field Research Canoe', brand: 'Old Town', model: 'Discovery 169', category: 'Non-Motorized Craft', location: 'Boathouse Storage Rack 3', keyLocation: 'Boathouse Padlock #2', status: 'available', imageUrl: '' }
 ];
 
 function getCategoryRank(category) {
@@ -60,12 +64,15 @@ function getCategoryRank(category) {
 }
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('assets'); // 'assets' or 'calendar'
+  const [activeCalendarUrl, setActiveCalendarUrl] = useState(COMBINED_CAL_URL);
+  const [selectedCalId, setSelectedCalId] = useState('combined');
+
   const [vehicles, setVehicles] = useState(DEFAULT_VEHICLES);
   const [selectedVehicles, setSelectedVehicles] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAdminMode, setIsAdminMode] = useState(false);
-  const [showCalMenu, setShowCalMenu] = useState(false);
   const [notionConnected, setNotionConnected] = useState(false);
   const [notionStatusMsg, setNotionStatusMsg] = useState('Checking Notion connection...');
 
@@ -121,7 +128,7 @@ export default function App() {
                            props['Key Location']?.rich_text?.[0]?.plain_text || 
                            'Contact Lab Manager';
 
-            const location = props['Location']?.select?.name || props['Location']?.rich_text?.[0]?.plain_text || 'Contact Lab Manager';
+            const location = props['Location']?.select?.name || props['Location']?.rich_text?.[0]?.plain_text || 'Field Garage';
 
             return {
               id: page.id,
@@ -132,7 +139,6 @@ export default function App() {
               location: location,
               keyLocation: keyLoc,
               status: 'available',
-              notionUrl: page.url,
               imageUrl: photoUrl
             };
           });
@@ -206,24 +212,40 @@ export default function App() {
 
     const links = selectedVehicles.map((vehicle) => {
       const calId = getTargetCalendarId(vehicle);
+      // Title without "Reservation:" prefix
       const title = encodeURIComponent(`${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
+      
+      // Details strictly limited to requested fields
       const details = encodeURIComponent(
-        `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nKey Location: ${vehicle.keyLocation}\nVehicle Location: ${vehicle.location}\nTrip Notes: ${notes}`
+        `Reserved by: ${userName} (${userEmail})\n` +
+        `Vehicle/Asset: ${vehicle.name}\n` +
+        `Brand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\n` +
+        `Key Location: ${vehicle.keyLocation}\n` +
+        `Vehicle Location: ${vehicle.location}\n` +
+        `Trip Notes: ${notes}`
       );
 
-#####
+      // Empty location parameter
+      return {
+        vehicleName: vehicle.name,
+        url: `https://calendar.google.com/calendar/render?action=TEMPLATE&src=${encodeURIComponent(calId)}&text=${title}&dates=${startISO}/${endISO}&details=${details}&location=&ctz=America%2FChicago`
+      };
+    });
+
     setGeneratedCalendarLinks(links);
     setBookingSuccess(true);
   };
 
-  #const handleVehicleUpdate = (id, field, value) => {
+  const handleVehicleUpdate = (id, field, value) => {
     setVehicles(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
     setSelectedVehicles(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', color: '#f8fafc', fontFamily: 'sans-serif', padding: '24px' }}>
-      <header style={{ maxWidth: '1200px', margin: '0 auto 24px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', paddingBottom: '16px' }}>
+      
+      {/* Top Header */}
+      <header style={{ maxWidth: '1400px', margin: '0 auto 16px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', paddingBottom: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0, color: '#ffffff' }}>Vehicle & Fleet Reservation Portal</h1>
@@ -236,279 +258,335 @@ export default function App() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', position: 'relative' }}>
-          <div>
-            <button 
-              onClick={() => setShowCalMenu(!showCalMenu)}
-              style={{ padding: '8px 16px', backgroundColor: '#0284c7', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-            >
-              <span>📅 View Live Calendars</span>
-              <span style={{ fontSize: '10px' }}>▼</span>
-            </button>
-            {showCalMenu && (
-              <div style={{ position: 'absolute', right: '170px', top: '44px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '10px', zIndex: 50, width: '280px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.6)' }}>
-                <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>
-                  Select Calendar View
-                </div>
-                {CALENDAR_LIST.map((cal, idx) => (
-                  <a
-                    key={idx}
-                    href={cal.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ 
-                      display: 'flex',
-                      alignItems: 'center',
-                      justify: 'space-between',
-                      padding: '8px 10px', 
-                      color: cal.isCombined ? '#34d399' : '#f8fafc', 
-                      fontWeight: cal.isCombined ? 'bold' : 'normal',
-                      textDecoration: 'none', 
-                      fontSize: '12px', 
-                      borderRadius: '6px',
-                      marginBottom: '4px',
-                      backgroundColor: cal.isCombined ? '#064e3b33' : '#0f172a',
-                      border: cal.isCombined ? '1px solid #059669' : '1px solid #1e293b'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: cal.color, display: 'inline-block', flexShrink: 0 }} />
-                      <span>{cal.name}</span>
-                    </div>
-                    <span style={{ fontSize: '11px', color: '#64748b' }}>↗</span>
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <button 
-            onClick={() => setIsAdminMode(!isAdminMode)}
-            style={{ padding: '8px 16px', backgroundColor: isAdminMode ? '#78350f' : '#1e293b', color: isAdminMode ? '#fde68a' : '#cbd5e1', border: '1px solid #475569', cursor: 'pointer', borderRadius: '8px', fontSize: '14px' }}
-          >
-            {isAdminMode ? 'Exit Admin Mode' : 'Admin & Photo Editor'}
-          </button>
-        </div>
+        <button 
+          onClick={() => setIsAdminMode(!isAdminMode)}
+          style={{ padding: '8px 16px', backgroundColor: isAdminMode ? '#78350f' : '#1e293b', color: isAdminMode ? '#fde68a' : '#cbd5e1', border: '1px solid #475569', cursor: 'pointer', borderRadius: '8px', fontSize: '14px' }}
+        >
+          {isAdminMode ? 'Exit Admin Mode' : 'Admin & Photo Editor'}
+        </button>
       </header>
 
+      {/* Main App Navigation Tabs */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 20px auto', display: 'flex', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '4px' }}>
+        <button
+          onClick={() => setActiveTab('assets')}
+          style={{
+            padding: '10px 20px',
+            borderRadius: '8px 8px 0 0',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: activeTab === 'assets' ? '#2563eb' : '#1e293b',
+            color: '#ffffff'
+          }}
+        >
+          🚗 Vehicle Assets & Reservation
+        </button>
+        <button
+          onClick={() => setActiveTab('calendar')}
+          style={{
+            padding: '10px 20px',
+            borderRadius: '8px 8px 0 0',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: activeTab === 'calendar' ? '#2563eb' : '#1e293b',
+            color: '#ffffff'
+          }}
+        >
+          📅 Calendar Viewer (Multi-Calendar)
+        </button>
+      </div>
+
       {!notionConnected && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto 16px auto', padding: '12px 16px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', fontSize: '12px', color: '#94a3b8' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto 16px auto', padding: '12px 16px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', fontSize: '12px', color: '#94a3b8' }}>
           <strong>Sync Status:</strong> {notionStatusMsg}
         </div>
       )}
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-        <section>
-          <div style={{ backgroundColor: '#1e293b', padding: '16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center' }}>
-            <input 
-              type="text"
-              placeholder="Search make, model, category, or key..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ width: '260px', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 12px', color: '#f8fafc' }}
-            />
+      {/* TAB 1: VEHICLE ASSETS & BOOKING FORM */}
+      {activeTab === 'assets' && (
+        <main style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+          <section>
+            <div style={{ backgroundColor: '#1e293b', padding: '16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center' }}>
+              <input 
+                type="text"
+                placeholder="Search make, model, category, or key..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ width: '260px', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 12px', color: '#f8fafc' }}
+              />
 
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {dynamicCategories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveFilter(cat)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    backgroundColor: activeFilter === cat ? '#2563eb' : '#0f172a',
-                    color: '#ffffff',
-                    fontWeight: activeFilter === cat ? 'bold' : 'normal',
-                    textTransform: 'capitalize'
-                  }}
-                >
-                  {cat === 'all' ? 'All Fleet' : cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-            <div style={{ borderBottom: '1px solid #1e293b', paddingBottom: '12px', marginBottom: '16px', fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between' }}>
-              <span>Available Fleet Assets</span>
-              <span style={{ color: '#38bdf8', textTransform: 'none' }}>Click tiles to select multiple assets</span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-              {filteredVehicles.map((vehicle) => {
-                const isSelected = selectedVehicles.some((v) => v.id === vehicle.id);
-                return (
-                  <div
-                    key={vehicle.id}
-                    onClick={() => toggleVehicleSelection(vehicle)}
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {dynamicCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveFilter(cat)}
                     style={{
-                      padding: '16px',
-                      borderRadius: '12px',
-                      border: isSelected ? '2px solid #3b82f6' : '1px solid #1e293b',
-                      backgroundColor: isSelected ? '#172554' : '#0f172a',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      border: 'none',
                       cursor: 'pointer',
-                      position: 'relative'
+                      backgroundColor: activeFilter === cat ? '#2563eb' : '#0f172a',
+                      color: '#ffffff',
+                      fontWeight: activeFilter === cat ? 'bold' : 'normal',
+                      textTransform: 'capitalize'
                     }}
                   >
-                    {isSelected && (
-                      <span style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold' }}>
-                        ✓
-                      </span>
-                    )}
-
-                    {vehicle.imageUrl ? (
-                      <img src={vehicle.imageUrl} alt={vehicle.name} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '6px', marginBottom: '8px' }} />
-                    ) : (
-                      <div style={{ width: '100%', height: '80px', backgroundColor: '#020617', borderRadius: '6px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#475569', textTransform: 'uppercase' }}>
-                        {vehicle.category}
-                      </div>
-                    )}
-
-                    <div style={{ fontWeight: '600', fontSize: '15px', color: '#f8fafc' }}>{vehicle.name}</div>
-                    {(vehicle.brand || vehicle.model) && (
-                      <div style={{ fontSize: '11px', color: '#93c5fd', marginTop: '2px' }}>{[vehicle.brand, vehicle.model].filter(Boolean).join(' · ')}</div>
-                    )}
-                    <div style={{ fontSize: '12px', color: '#38bdf8', marginTop: '4px' }}>🔑 Key: {vehicle.keyLocation}</div>
-                    <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>📍 {vehicle.location}</div>
-                  </div>
-                );
-              })}
+                    {cat === 'all' ? 'All Fleet' : cat}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
 
-        <section style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '20px', height: 'fit-content' }}>
-          {isAdminMode ? (
-            <div>
-              <h2 style={{ fontSize: '16px', fontWeight: 'bold', color: '#fbbf24', marginBottom: '16px' }}>Admin Asset & Photo Editor</h2>
-              {selectedVehicles.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {selectedVehicles.map((vehicle) => (
-                    <div key={vehicle.id} style={{ borderBottom: '1px solid #334155', paddingBottom: '12px' }}>
-                      <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#60a5fa' }}>{vehicle.name}</div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Category</label>
-                          <input type="text" value={vehicle.category} onChange={(e) => handleVehicleUpdate(vehicle.id, 'category', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
+            <div style={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
+              <div style={{ borderBottom: '1px solid #1e293b', paddingBottom: '12px', marginBottom: '16px', fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between' }}>
+                <span>Available Fleet Assets</span>
+                <span style={{ color: '#38bdf8', textTransform: 'none' }}>Click tiles to select multiple assets</span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                {filteredVehicles.map((vehicle) => {
+                  const isSelected = selectedVehicles.some((v) => v.id === vehicle.id);
+                  return (
+                    <div
+                      key={vehicle.id}
+                      onClick={() => toggleVehicleSelection(vehicle)}
+                      style={{
+                        padding: '16px',
+                        borderRadius: '12px',
+                        border: isSelected ? '2px solid #3b82f6' : '1px solid #1e293b',
+                        backgroundColor: isSelected ? '#172554' : '#0f172a',
+                        cursor: 'pointer',
+                        position: 'relative'
+                      }}
+                    >
+                      {isSelected && (
+                        <span style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold' }}>
+                          ✓
+                        </span>
+                      )}
+
+                      {vehicle.imageUrl ? (
+                        <img src={vehicle.imageUrl} alt={vehicle.name} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '6px', marginBottom: '8px' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '80px', backgroundColor: '#020617', borderRadius: '6px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#475569', textTransform: 'uppercase' }}>
+                          {vehicle.category}
                         </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Brand / Make</label>
-                          <input type="text" value={vehicle.brand || ''} onChange={(e) => handleVehicleUpdate(vehicle.id, 'brand', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Model</label>
-                          <input type="text" value={vehicle.model || ''} onChange={(e) => handleVehicleUpdate(vehicle.id, 'model', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Key Location</label>
-                          <input type="text" value={vehicle.keyLocation} onChange={(e) => handleVehicleUpdate(vehicle.id, 'keyLocation', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Image URL</label>
-                          <input type="text" placeholder="https://..." value={vehicle.imageUrl || ''} onChange={(e) => handleVehicleUpdate(vehicle.id, 'imageUrl', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
-                        </div>
-                      </div>
+                      )}
+
+                      <div style={{ fontWeight: '600', fontSize: '15px', color: '#f8fafc' }}>{vehicle.name}</div>
+                      {(vehicle.brand || vehicle.model) && (
+                        <div style={{ fontSize: '11px', color: '#93c5fd', marginTop: '2px' }}>{[vehicle.brand, vehicle.model].filter(Boolean).join(' · ')}</div>
+                      )}
+                      <div style={{ fontSize: '12px', color: '#38bdf8', marginTop: '4px' }}>🔑 Key: {vehicle.keyLocation}</div>
+                      <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>📍 {vehicle.location}</div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p style={{ fontSize: '13px', color: '#94a3b8' }}>Select assets from the fleet grid to edit details.</p>
-              )}
+                  );
+                })}
+              </div>
             </div>
-          ) : (
-            <div>
-              {selectedVehicles.length > 0 ? (
-                <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>
-                    Selected ({selectedVehicles.length}) Assets
-                  </h2>
+          </section>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-                    {selectedVehicles.map((v) => (
-                      <div key={v.id} style={{ padding: '10px', backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #334155' }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#fff' }}>{v.name}</div>
-                        {(v.brand || v.model) && (
-                          <div style={{ fontSize: '11px', color: '#93c5fd' }}>{[v.brand, v.model].filter(Boolean).join(' · ')}</div>
-                        )}
-                        <div style={{ fontSize: '11px', color: '#38bdf8', marginTop: '2px' }}>🔑 Key: {v.keyLocation}</div>
-                        <div style={{ fontSize: '11px', color: '#94a3b8' }}>📍 Station: {v.location}</div>
+          <section style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '20px', height: 'fit-content' }}>
+            {isAdminMode ? (
+              <div>
+                <h2 style={{ fontSize: '16px', fontWeight: 'bold', color: '#fbbf24', marginBottom: '16px' }}>Admin Asset & Photo Editor</h2>
+                {selectedVehicles.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {selectedVehicles.map((vehicle) => (
+                      <div key={vehicle.id} style={{ borderBottom: '1px solid #334155', paddingBottom: '12px' }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#60a5fa' }}>{vehicle.name}</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Category</label>
+                            <input type="text" value={vehicle.category} onChange={(e) => handleVehicleUpdate(vehicle.id, 'category', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Brand / Make</label>
+                            <input type="text" value={vehicle.brand || ''} onChange={(e) => handleVehicleUpdate(vehicle.id, 'brand', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Model</label>
+                            <input type="text" value={vehicle.model || ''} onChange={(e) => handleVehicleUpdate(vehicle.id, 'model', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Key Location</label>
+                            <input type="text" value={vehicle.keyLocation} onChange={(e) => handleVehicleUpdate(vehicle.id, 'keyLocation', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>Image URL</label>
+                            <input type="text" placeholder="https://..." value={vehicle.imageUrl || ''} onChange={(e) => handleVehicleUpdate(vehicle.id, 'imageUrl', e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '6px', color: '#fff' }} />
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <p style={{ fontSize: '13px', color: '#94a3b8' }}>Select assets from the fleet grid to edit details.</p>
+                )}
+              </div>
+            ) : (
+              <div>
+                {selectedVehicles.length > 0 ? (
+                  <div>
+                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>
+                      Selected ({selectedVehicles.length}) Assets
+                    </h2>
 
-                  {bookingSuccess ? (
-                    <div style={{ backgroundColor: '#064e3b', border: '1px solid #059669', padding: '16px', borderRadius: '8px' }}>
-                      <div style={{ color: '#34d399', fontWeight: 'bold', marginBottom: '8px' }}>
-                        Reservations Prepared!
-                      </div>
-                      <p style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '12px' }}>
-                        Click below to add events to each asset's respective Google Calendar:
-                      </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {generatedCalendarLinks.map((link, idx) => (
-                          <a key={idx} href={link.url} target="_blank" rel="noreferrer" style={{ display: 'block', textAlign: 'center', backgroundColor: '#059669', color: '#fff', padding: '10px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                            Add {link.vehicleName} to Calendar
-                          </a>
-                        ))}
-                      </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                      {selectedVehicles.map((v) => (
+                        <div key={v.id} style={{ padding: '10px', backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #334155' }}>
+                          <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#fff' }}>{v.name}</div>
+                          {(v.brand || v.model) && (
+                            <div style={{ fontSize: '11px', color: '#93c5fd' }}>{[v.brand, v.model].filter(Boolean).join(' · ')}</div>
+                          )}
+                          <div style={{ fontSize: '11px', color: '#38bdf8', marginTop: '2px' }}>🔑 Key: {v.keyLocation}</div>
+                          <div style={{ fontSize: '11px', color: '#94a3b8' }}>📍 Station: {v.location}</div>
+                        </div>
+                      ))}
                     </div>
-                  ) : (
-                    <form onSubmit={handleBookingSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Departure Date</label>
-                          <input type="date" required value={startDate} onChange={(e) => { setStartDate(e.target.value); if (!endDate || endDate < e.target.value) setEndDate(e.target.value); }} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff', colorScheme: 'dark' }} />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Return Date</label>
-                          <input type="date" min={startDate} value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff', colorScheme: 'dark' }} />
-                        </div>
-                      </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Departure Time</label>
-                          <input type="time" required value={startTime} onChange={(e) => setStartTime(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff', colorScheme: 'dark' }} />
+                    {bookingSuccess ? (
+                      <div style={{ backgroundColor: '#064e3b', border: '1px solid #059669', padding: '16px', borderRadius: '8px' }}>
+                        <div style={{ color: '#34d399', fontWeight: 'bold', marginBottom: '8px' }}>
+                          Reservations Prepared!
                         </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Return Time</label>
-                          <input type="time" required value={endTime} onChange={(e) => setEndTime(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff', colorScheme: 'dark' }} />
+                        <p style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '12px' }}>
+                          Click below to add events to each asset's respective Google Calendar:
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {generatedCalendarLinks.map((link, idx) => (
+                            <a key={idx} href={link.url} target="_blank" rel="noreferrer" style={{ display: 'block', textAlign: 'center', backgroundColor: '#059669', color: '#fff', padding: '10px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                              Add {link.vehicleName} to Calendar
+                            </a>
+                          ))}
                         </div>
                       </div>
+                    ) : (
+                      <form onSubmit={handleBookingSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Departure Date</label>
+                            <input type="date" required value={startDate} onChange={(e) => { setStartDate(e.target.value); if (!endDate || endDate < e.target.value) setEndDate(e.target.value); }} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff', colorScheme: 'dark' }} />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Return Date</label>
+                            <input type="date" min={startDate} value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff', colorScheme: 'dark' }} />
+                          </div>
+                        </div>
 
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Driver / Operator Name</label>
-                        <input type="text" required placeholder="Jane Doe" value={userName} onChange={(e) => setUserName(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff' }} />
-                      </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Departure Time</label>
+                            <input type="time" required value={startTime} onChange={(e) => setStartTime(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff', colorScheme: 'dark' }} />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Return Time</label>
+                            <input type="time" required value={endTime} onChange={(e) => setEndTime(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff', colorScheme: 'dark' }} />
+                          </div>
+                        </div>
 
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Contact Email</label>
-                        <input type="email" required placeholder="jane@university.edu" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff' }} />
-                      </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Driver / Operator Name</label>
+                          <input type="text" required placeholder="Jane Doe" value={userName} onChange={(e) => setUserName(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff' }} />
+                        </div>
 
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Destination / Field Purpose</label>
-                        <textarea rows={2} placeholder="Field site location and sampling goals..." value={notes} onChange={(e) => setNotes(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff' }} />
-                      </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Contact Email</label>
+                          <input type="email" required placeholder="jane@university.edu" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff' }} />
+                        </div>
 
-                      <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '8px' }}>
-                        Reserve Selected ({selectedVehicles.length}) Asset(s)
-                      </button>
-                    </form>
-                  )}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', color: '#94a3b8', padding: '32px 0' }}>
-                  Select one or more assets from the fleet grid to reserve.
-                </div>
-              )}
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Destination / Field Purpose</label>
+                          <textarea rows={2} placeholder="Field site location and sampling goals..." value={notes} onChange={(e) => setNotes(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff' }} />
+                        </div>
+
+                        <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '8px' }}>
+                          Reserve Selected ({selectedVehicles.length}) Asset(s)
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', color: '#94a3b8', padding: '32px 0' }}>
+                    Select one or more assets from the fleet grid to reserve.
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+        </main>
+      )}
+
+      {/* TAB 2: EMBEDDED CALENDAR VIEWER WITH PERSISTENT LEFT SIDEBAR */}
+      {activeTab === 'calendar' && (
+        <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: '280px 1fr', gap: '20px' }}>
+          
+          {/* Left Sidebar Menu */}
+          <aside style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '20px', height: 'fit-content' }}>
+            <h2 style={{ fontSize: '13px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 12px 0', borderBottom: '1px solid #334155', paddingBottom: '8px' }}>
+              Select Calendar View
+            </h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {CALENDAR_LIST.map((cal) => {
+                const isSelected = selectedCalId === cal.id;
+                return (
+                  <button
+                    key={cal.id}
+                    onClick={() => {
+                      setSelectedCalId(cal.id);
+                      setActiveCalendarUrl(cal.url);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '12px 14px',
+                      borderRadius: '8px',
+                      border: isSelected ? '2px solid #38bdf8' : '1px solid #334155',
+                      backgroundColor: isSelected ? '#0f172a' : '#020617',
+                      color: isSelected ? '#ffffff' : '#cbd5e1',
+                      fontWeight: isSelected ? 'bold' : 'normal',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: cal.color, display: 'inline-block', flexShrink: 0 }} />
+                    <span>{cal.name}</span>
+                  </button>
+                );
+              })}
             </div>
-          )}
-        </section>
-      </main>
+
+            <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #334155', fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
+              <span style={{ color: '#34d399', fontWeight: 'bold' }}>Color Legend:</span>
+              <ul style={{ paddingLeft: '16px', margin: '8px 0 0 0' }}>
+                <li><span style={{ color: '#64748b' }}>●</span> Hansen Truck (Grey)</li>
+                <li><span style={{ color: '#2563eb' }}>●</span> Larkin Truck (Blue)</li>
+                <li><span style={{ color: '#059669' }}>●</span> Hansen Boat (Green)</li>
+                <li><span style={{ color: '#dc2626' }}>●</span> Larkin Boat (Red)</li>
+              </ul>
+            </div>
+          </aside>
+
+          {/* Right Main Panel: Embedded Google Calendar Iframe */}
+          <section style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px', minHeight: '750px' }}>
+            <iframe
+              title="Google Fleet Calendar View"
+              src={activeCalendarUrl}
+              style={{ width: '100%', height: '750px', border: 'none', borderRadius: '12px', backgroundColor: '#ffffff' }}
+            />
+          </section>
+
+        </div>
+      )}
+
     </div>
   );
 }
