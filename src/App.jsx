@@ -17,7 +17,7 @@ const COMBINED_CAL_URL = `https://calendar.google.com/calendar/embed?` +
 const CALENDAR_LIST = [
   { 
     id: 'combined',
-    name: 'All Fleet Calendars (Combined)', 
+    name: 'See Vehicle Calendars (Combined)', 
     url: COMBINED_CAL_URL, 
     color: '#34d399',
     isCombined: true
@@ -248,13 +248,13 @@ export default function App() {
       <header style={{ maxWidth: '1400px', margin: '0 auto 16px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', paddingBottom: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0, color: '#ffffff' }}>Vehicle & Fleet Reservation Portal</h1>
+            <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0, color: '#ffffff' }}>Vehicle & Reservation Portal</h1>
             <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', border: notionConnected ? '1px solid #059669' : '1px solid #d97706', backgroundColor: notionConnected ? '#064e3b' : '#78350f', color: notionConnected ? '#34d399' : '#fde68a' }}>
               {notionConnected ? 'Live Notion Sync' : 'Default Asset Mode'}
             </span>
           </div>
           <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>
-            Multi-Vehicle Field Operations Portal for Trucks, Boats, & Fleet Equipment
+            Multi-Vehicle Field Operations Portal for Trucks and Boats
           </p>
         </div>
 
@@ -336,7 +336,7 @@ export default function App() {
                       textTransform: 'capitalize'
                     }}
                   >
-                    {cat === 'all' ? 'All Fleet' : cat}
+                    {cat === 'all' ? 'All' : cat}
                   </button>
                 ))}
               </div>
@@ -344,7 +344,7 @@ export default function App() {
 
             <div style={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
               <div style={{ borderBottom: '1px solid #1e293b', paddingBottom: '12px', marginBottom: '16px', fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between' }}>
-                <span>Available Fleet Assets</span>
+                <span>Available Assets</span>
                 <span style={{ color: '#38bdf8', textTransform: 'none' }}>Click tiles to select multiple assets</span>
               </div>
 
@@ -426,7 +426,7 @@ export default function App() {
                     ))}
                   </div>
                 ) : (
-                  <p style={{ fontSize: '13px', color: '#94a3b8' }}>Select assets from the fleet grid to edit details.</p>
+                  <p style={{ fontSize: '13px', color: '#94a3b8' }}>Select assets from the grid to edit details.</p>
                 )}
               </div>
             ) : (
@@ -513,7 +513,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div style={{ textAlign: 'center', color: '#94a3b8', padding: '32px 0' }}>
-                    Select one or more assets from the fleet grid to reserve.
+                    Select one or more assets from the grid to reserve.
                   </div>
                 )}
               </div>
@@ -578,7 +578,7 @@ export default function App() {
           {/* Right Main Panel: Embedded Google Calendar Iframe */}
           <section style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px', minHeight: '750px' }}>
             <iframe
-              title="Google Fleet Calendar View"
+              title="Google Vehicle and Boat Calendar View"
               src={activeCalendarUrl}
               style={{ width: '100%', height: '750px', border: 'none', borderRadius: '12px', backgroundColor: '#ffffff' }}
             />
