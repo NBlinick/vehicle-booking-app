@@ -6,11 +6,13 @@ const TRUCK_2_CAL_ID = "c_6br43pl0vad2su7ldibiillg2o@group.calendar.google.com";
 const BOAT_1_CAL_ID = "c_64a563c76f037a43bb5816c4ddf724d6025b18faf4a2aa9a3c35b56ae36039fc@group.calendar.google.com"; // Hansen/Walsh Lab Boats
 const BOAT_2_CAL_ID = "c_5fb23aa1750177240b46b54ccb1782b68e8ab0468957d63ac1219a8a7296b963@group.calendar.google.com"; // Larkin Boats
 
+// Combined URL overlaying all 4 calendar IDs into a single window
+const COMBINED_CAL_URL = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_1_CAL_ID)}&src=${encodeURIComponent(TRUCK_2_CAL_ID)}&src=${encodeURIComponent(BOAT_1_CAL_ID)}&src=${encodeURIComponent(BOAT_2_CAL_ID)}&ctz=America%2FChicago`;
+
 const CALENDAR_LIST = [
-  { name: 'Hansen Truck Calendar', id: TRUCK_1_CAL_ID },
-  { name: 'Larkin Truck Calendar', id: TRUCK_2_CAL_ID },
-  { name: 'Hansen/Walsh Boat Calendar', id: BOAT_1_CAL_ID },
-  { name: 'Larkin Boat Calendar', id: BOAT_2_CAL_ID }
+  { name: '🌐 All Fleet Calendars (Combined)', url: COMBINED_CAL_URL, isCombined: true },
+  { name: 'Hansen Truck Calendar', url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_1_CAL_ID)}&ctz=America\%2FChicago` }, { name: 'Larkin Truck Calendar', url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_2_CAL_ID)}&ctz=America%2FChicago` },
+  { name: 'Hansen/Walsh Boat Calendar', url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(BOAT_1_CAL_ID)}&ctz=America\%2FChicago` }, { name: 'Larkin Boat Calendar', url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(BOAT_2_CAL_ID)}&ctz=America%2FChicago` }
 ];
 
 const DEFAULT_VEHICLES = [
@@ -177,9 +179,9 @@ export default function App() {
       const calId = getTargetCalendarId(vehicle);
       const title = encodeURIComponent(`Reservation: ${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
       const details = encodeURIComponent(
-        `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nCategory: ${vehicle.category.toUpperCase()}\nKey Location: ${vehicle.keyLocation}\nParking/Dock: ${vehicle.location}\nDuration: ${startDate} ${startTime} to ${finalEndDate} ${endTime}\nTrip Notes: ${notes}\nNotion Maintenance Records: ${vehicle.notionUrl || 'N/A'}`
+        `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model:${vehicle.brand || 'N/A'} ${vehicle.model \vert{}\vert{} ''}\nCategory:${vehicle.category.toUpperCase()}\nKey Location: ${vehicle.keyLocation}\nParking/Dock:${vehicle.location}\nDuration: ${startDate}${startTime} to ${finalEndDate}${endTime}\nTrip Notes: ${notes}\nNotion Maintenance Records:${vehicle.notionUrl || 'N/A'}`
       );
-      const location = encodeURIComponent(`Key Location: ${vehicle.keyLocation} | Station: ${vehicle.location}`);
+      const location = encodeURIComponent(`Key Location: ${vehicle.keyLocation} \vert{} Station:${vehicle.location}`);
 
       return {
         vehicleName: vehicle.name,
@@ -220,16 +222,25 @@ export default function App() {
               📅 View Live Calendars ▾
             </button>
             {showCalMenu && (
-              <div style={{ position: 'absolute', right: '170px', top: '44px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '8px', zIndex: 50, width: '220px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)' }}>
-                {CALENDAR_LIST.map((cal) => (
+              <div style={{ position: 'absolute', right: '170px', top: '44px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '8px', zIndex: 50, width: '250px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)' }}>
+                {CALENDAR_LIST.map((cal, idx) => (
                   <a
-                    key={cal.id}
-                    href={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(cal.id)}&ctz=America%2FChicago`}
+                    key={idx}
+                    href={cal.url}
                     target="_blank"
                     rel="noreferrer"
-                    style={{ display: 'block', padding: '8px 10px', color: '#38bdf8', textDecoration: 'none', fontSize: '12px', borderBottom: '1px solid #334155' }}
+                    style={{ 
+                      display: 'block', 
+                      padding: '8px 10px', 
+                      color: cal.isCombined ? '#34d399' : '#38bdf8', 
+                      fontWeight: cal.isCombined ? 'bold' : 'normal',
+                      textDecoration: 'none', 
+                      fontSize: '12px', 
+                      borderBottom: idx === 0 ? '2px solid #334155' : '1px solid #334155',
+                      backgroundColor: cal.isCombined ? '#064e3b22' : 'transparent'
+                    }}
                   >
-                    ↗ {cal.name}
+                    {cal.name} ↗
                   </a>
                 ))}
               </div>
