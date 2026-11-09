@@ -6,20 +6,41 @@ const TRUCK_2_CAL_ID = "c_6br43pl0vad2su7ldibiillg2o@group.calendar.google.com";
 const BOAT_1_CAL_ID = "c_64a563c76f037a43bb5816c4ddf724d6025b18faf4a2aa9a3c35b56ae36039fc@group.calendar.google.com"; // Hansen/Walsh Lab Boats
 const BOAT_2_CAL_ID = "c_5fb23aa1750177240b46b54ccb1782b68e8ab0468957d63ac1219a8a7296b963@group.calendar.google.com"; // Larkin Boats
 
-// Combined URL with unique hex color parameters for each calendar
+// Combined URL with updated color parameters: Hansen Truck (Grey), Larkin Truck (Blue), Hansen Boat (Green), Larkin Boat (Red)
 const COMBINED_CAL_URL = `https://calendar.google.com/calendar/embed?` +
-  `src=${encodeURIComponent(TRUCK_1_CAL_ID)}&color=%232563eb&` + // Hansen Truck: Blue (#2563eb)
-  `src=${encodeURIComponent(TRUCK_2_CAL_ID)}&color=%23d97706&` + // Larkin Truck: Orange (#d97706)
-  `src=${encodeURIComponent(BOAT_1_CAL_ID)}&color=%23059669&` +  // Hansen Boat: Green (#059669)
-  `src=${encodeURIComponent(BOAT_2_CAL_ID)}&color=%237c3aed&` +  // Larkin Boat: Purple (#7c3aed)
+  `src=${encodeURIComponent(TRUCK_1_CAL_ID)}&color=%2364748b&` +
+  `src=${encodeURIComponent(TRUCK_2_CAL_ID)}&color=%232563eb&` +
+  `src=${encodeURIComponent(BOAT_1_CAL_ID)}&color=%23059669&` +
+  `src=${encodeURIComponent(BOAT_2_CAL_ID)}&color=%23dc2626&` +
   `ctz=America%2FChicago`;
 
 const CALENDAR_LIST = [
-  { name: '🌐 All Fleet Calendars (Combined)', url: COMBINED_CAL_URL, isCombined: true },
-  { name: 'Hansen Truck Calendar', url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_1_CAL_ID)}&ctz=America%2FChicago` },
-  { name: 'Larkin Truck Calendar', url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_2_CAL_ID)}&ctz=America%2FChicago` },
-  { name: 'Hansen/Walsh Boat Calendar', url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(BOAT_1_CAL_ID)}&ctz=America%2FChicago` },
-  { name: 'Larkin Boat Calendar', url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(BOAT_2_CAL_ID)}&ctz=America%2FChicago` }
+  { 
+    name: 'All Fleet Calendars (Combined)', 
+    url: COMBINED_CAL_URL, 
+    isCombined: true,
+    color: '#34d399' 
+  },
+  { 
+    name: 'Hansen Truck Calendar', 
+    url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_1_CAL_ID)}&color=%2364748b&ctz=America%2FChicago`, 
+    color: '#64748b' 
+  },
+  { 
+    name: 'Larkin Truck Calendar', 
+    url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_2_CAL_ID)}&color=%232563eb&ctz=America%2FChicago`, 
+    color: '#2563eb' 
+  },
+  { 
+    name: 'Hansen/Walsh Boat Calendar', 
+    url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(BOAT_1_CAL_ID)}&color=%23059669&ctz=America%2FChicago`, 
+    color: '#059669' 
+  },
+  { 
+    name: 'Larkin Boat Calendar', 
+    url: `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(BOAT_2_CAL_ID)}&color=%23dc2626&ctz=America%2FChicago`, 
+    color: '#dc2626' 
+  }
 ];
 
 const DEFAULT_VEHICLES = [
@@ -224,12 +245,16 @@ export default function App() {
           <div>
             <button 
               onClick={() => setShowCalMenu(!showCalMenu)}
-              style={{ padding: '8px 16px', backgroundColor: '#0284c7', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}
+              style={{ padding: '8px 16px', backgroundColor: '#0284c7', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              📅 View Live Calendars ▾
+              <span>📅 View Live Calendars</span>
+              <span style={{ fontSize: '10px' }}>▼</span>
             </button>
             {showCalMenu && (
-              <div style={{ position: 'absolute', right: '170px', top: '44px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '8px', zIndex: 50, width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)' }}>
+              <div style={{ position: 'absolute', right: '170px', top: '44px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '10px', zIndex: 50, width: '280px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.6)' }}>
+                <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>
+                  Calendar Color Legend & Views
+                </div>
                 {CALENDAR_LIST.map((cal, idx) => (
                   <a
                     key={idx}
@@ -237,17 +262,25 @@ export default function App() {
                     target="_blank"
                     rel="noreferrer"
                     style={{ 
-                      display: 'block', 
+                      display: 'flex',
+                      alignItems: 'center',
+                      justify: 'space-between',
                       padding: '8px 10px', 
-                      color: cal.isCombined ? '#34d399' : '#38bdf8', 
+                      color: cal.isCombined ? '#34d399' : '#f8fafc', 
                       fontWeight: cal.isCombined ? 'bold' : 'normal',
                       textDecoration: 'none', 
                       fontSize: '12px', 
-                      borderBottom: idx === 0 ? '2px solid #334155' : '1px solid #334155',
-                      backgroundColor: cal.isCombined ? '#064e3b22' : 'transparent'
+                      borderRadius: '6px',
+                      marginBottom: '4px',
+                      backgroundColor: cal.isCombined ? '#064e3b33' : '#0f172a',
+                      border: cal.isCombined ? '1px solid #059669' : '1px solid #1e293b'
                     }}
                   >
-                    {cal.name} ↗
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: cal.color, display: 'inline-block', flexShrink: 0 }} />
+                      <span>{cal.name}</span>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>↗</span>
                   </a>
                 ))}
               </div>
@@ -268,6 +301,27 @@ export default function App() {
           <strong>Sync Status:</strong> {notionStatusMsg}
         </div>
       )}
+
+      {/* Standalone Calendar Color Key Banner */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto 16px auto', padding: '10px 16px', backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', fontSize: '12px' }}>
+        <span style={{ color: '#94a3b8', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '11px' }}>Calendar Key:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#64748b' }} />
+          <span>Hansen Truck (Grey)</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#2563eb' }} />
+          <span>Larkin Truck (Blue)</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#059669' }} />
+          <span>Hansen/Walsh Boat (Green)</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#dc2626' }} />
+          <span>Larkin Boat (Red)</span>
+        </div>
+      </div>
 
       <main style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
         <section>
