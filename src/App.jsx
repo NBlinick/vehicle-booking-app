@@ -83,6 +83,7 @@ export default function App() {
   const [endTime, setEndTime] = useState('17:00');
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [destination, setDestination] = useState('');
   const [notes, setNotes] = useState('');
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [generatedCalendarLinks, setGeneratedCalendarLinks] = useState([]);
@@ -212,20 +213,18 @@ export default function App() {
 
     const links = selectedVehicles.map((vehicle) => {
       const calId = getTargetCalendarId(vehicle);
-      // Title without "Reservation:" prefix
       const title = encodeURIComponent(`${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
       
-      // Details strictly limited to requested fields
       const details = encodeURIComponent(
         `Reserved by: ${userName} (${userEmail})\n` +
         `Vehicle/Asset: ${vehicle.name}\n` +
         `Brand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\n` +
         `Key Location: ${vehicle.keyLocation}\n` +
         `Vehicle Location: ${vehicle.location}\n` +
+        `Destination: ${destination}\n` +
         `Trip Notes: ${notes}`
       );
 
-      // Empty location parameter
       return {
         vehicleName: vehicle.name,
         url: `https://calendar.google.com/calendar/render?action=TEMPLATE&src=${encodeURIComponent(calId)}&text=${title}&dates=${startISO}/${endISO}&details=${details}&location=&ctz=America%2FChicago`
@@ -501,8 +500,13 @@ export default function App() {
                         </div>
 
                         <div>
-                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Destination / Field Purpose</label>
-                          <textarea rows={2} placeholder="Field site location and sampling goals..." value={notes} onChange={(e) => setNotes(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff' }} />
+                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Destination</label>
+                          <input type="text" required placeholder="Field site or location name..." value={destination} onChange={(e) => setDestination(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff' }} />
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>Trip Notes</label>
+                          <textarea rows={2} placeholder="Sampling goals or equipment notes..." value={notes} onChange={(e) => setNotes(e.target.value)} style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px', color: '#fff' }} />
                         </div>
 
                         <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '8px' }}>
@@ -563,12 +567,22 @@ export default function App() {
                 );
               })}
             </div>
+
+            <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #334155', fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
+              <span style={{ color: '#8a2be2', fontWeight: 'bold' }}>Color Legend:</span>
+              <ul style={{ paddingLeft: '16px', margin: '8px 0 0 0' }}>
+                <li><span style={{ color: '#64748b' }}>●</span> Hansen Truck (Grey)</li>
+                <li><span style={{ color: '#2563eb' }}>●</span> Larkin Truck (Blue)</li>
+                <li><span style={{ color: '#059669' }}>●</span> Hansen Boat (Green)</li>
+                <li><span style={{ color: '#dc2626' }}>●</span> Larkin Boat (Red)</li>
+              </ul>
+            </div>
           </aside>
 
           {/* Right Main Panel: Embedded Google Calendar Iframe */}
           <section style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px', minHeight: '750px' }}>
             <iframe
-              title="Google Vehicle and Boat Calendar View"
+              title="Google Fleet Calendar View"
               src={activeCalendarUrl}
               style={{ width: '100%', height: '750px', border: 'none', borderRadius: '12px', backgroundColor: '#ffffff' }}
             />
