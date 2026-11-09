@@ -432,7 +432,7 @@ export default function App() {
               <div>
                 {selectedVehicles.length > 0 ? (
                   <div>
-                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>
+                    <h2 style={{ fontSize: '18px', color: '#ffffff', fontWeight: 'bold', margin: '0 0 8px 0' }}>
                       Selected ({selectedVehicles.length}) Assets
                     </h2>
 
@@ -568,15 +568,6 @@ export default function App() {
               })}
             </div>
 
-            <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #334155', fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
-              <span style={{ color: '#8a2be2', fontWeight: 'bold' }}>Color Legend:</span>
-              <ul style={{ paddingLeft: '16px', margin: '8px 0 0 0' }}>
-                <li><span style={{ color: '#64748b' }}>●</span> Hansen Truck (Grey)</li>
-                <li><span style={{ color: '#2563eb' }}>●</span> Larkin Truck (Blue)</li>
-                <li><span style={{ color: '#059669' }}>●</span> Hansen Boat (Green)</li>
-                <li><span style={{ color: '#dc2626' }}>●</span> Larkin Boat (Red)</li>
-              </ul>
-            </div>
           </aside>
 
           {/* Right Main Panel: Embedded Google Calendar Iframe */}
