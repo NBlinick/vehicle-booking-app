@@ -254,7 +254,7 @@ export default function App() {
             </span>
           </div>
           <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>
-            Multi-Vehicle Field Operations Portal for Trucks and Boats
+            Multi-Vehicle Reservation Portal for Trucks and Boats
           </p>
         </div>
 
@@ -281,7 +281,7 @@ export default function App() {
             color: '#ffffff'
           }}
         >
-          🚗 Vehicle Assets & Reservation
+          🚗 Vehicles, Boats, & Reservations
         </button>
         <button
           onClick={() => setActiveTab('calendar')}
@@ -306,7 +306,7 @@ export default function App() {
         </div>
       )}
 
-      {/* TAB 1: VEHICLES, BOATS & BOOKING FORM */}
+      {/* TAB 1: VEHICLES, BOATS, & BOOKING FORM */}
       {activeTab === 'assets' && (
         <main style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
           <section>
@@ -562,16 +562,6 @@ export default function App() {
                   </button>
                 );
               })}
-            </div>
-
-           # <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #334155', fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
-              <span style={{ color: '#34d399', fontWeight: 'bold' }}>Color Legend:</span>
-              <ul style={{ paddingLeft: '16px', margin: '8px 0 0 0' }}>
-                <li><span style={{ color: '#64748b' }}>●</span> Hansen Truck (Grey)</li>
-                <li><span style={{ color: '#2563eb' }}>●</span> Larkin Truck (Blue)</li>
-                <li><span style={{ color: '#059669' }}>●</span> Hansen Boat (Green)</li>
-                <li><span style={{ color: '#dc2626' }}>●</span> Larkin Boat (Red)</li>
-              </ul>
             </div>
           </aside>
 
