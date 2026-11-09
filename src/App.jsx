@@ -205,7 +205,7 @@ export default function App() {
 
     const links = selectedVehicles.map((vehicle) => {
       const calId = getTargetCalendarId(vehicle);
-      const title = encodeURIComponent(`Reservation: ${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
+      const title = encodeURIComponent(`${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
       const details = encodeURIComponent(
         `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nCategory: ${vehicle.category.toUpperCase()}\nKey Location: ${vehicle.keyLocation}\nParking/Dock: ${vehicle.location}\nDuration: ${startDate} ${startTime} to ${finalEndDate} ${endTime}\nTrip Notes: ${notes}\nNotion Maintenance Records: ${vehicle.notionUrl || 'N/A'}`
       );
