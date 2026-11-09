@@ -6,8 +6,13 @@ const TRUCK_2_CAL_ID = "c_6br43pl0vad2su7ldibiillg2o@group.calendar.google.com";
 const BOAT_1_CAL_ID = "c_64a563c76f037a43bb5816c4ddf724d6025b18faf4a2aa9a3c35b56ae36039fc@group.calendar.google.com"; // Hansen/Walsh Lab Boats
 const BOAT_2_CAL_ID = "c_5fb23aa1750177240b46b54ccb1782b68e8ab0468957d63ac1219a8a7296b963@group.calendar.google.com"; // Larkin Boats
 
-// Combined URL overlaying all 4 calendars in one window
-const COMBINED_CAL_URL = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(TRUCK_1_CAL_ID)}&src=${encodeURIComponent(TRUCK_2_CAL_ID)}&src=${encodeURIComponent(BOAT_1_CAL_ID)}&src=${encodeURIComponent(BOAT_2_CAL_ID)}&ctz=America%2FChicago`;
+// Combined URL with unique hex color parameters for each calendar
+const COMBINED_CAL_URL = `https://calendar.google.com/calendar/embed?` +
+  `src=${encodeURIComponent(TRUCK_1_CAL_ID)}&color=%232563eb&` + // Hansen Truck: Blue (#2563eb)
+  `src=${encodeURIComponent(TRUCK_2_CAL_ID)}&color=%23d97706&` + // Larkin Truck: Orange (#d97706)
+  `src=${encodeURIComponent(BOAT_1_CAL_ID)}&color=%23059669&` +  // Hansen Boat: Green (#059669)
+  `src=${encodeURIComponent(BOAT_2_CAL_ID)}&color=%237c3aed&` +  // Larkin Boat: Purple (#7c3aed)
+  `ctz=America%2FChicago`;
 
 const CALENDAR_LIST = [
   { name: '🌐 All Fleet Calendars (Combined)', url: COMBINED_CAL_URL, isCombined: true },
