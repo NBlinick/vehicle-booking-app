@@ -6,6 +6,13 @@ const TRUCK_2_CAL_ID = "c_6br43pl0vad2su7ldibiillg2o@group.calendar.google.com";
 const BOAT_1_CAL_ID = "c_64a563c76f037a43bb5816c4ddf724d6025b18faf4a2aa9a3c35b56ae36039fc@group.calendar.google.com"; // Hansen/Walsh Lab Boats
 const BOAT_2_CAL_ID = "c_5fb23aa1750177240b46b54ccb1782b68e8ab0468957d63ac1219a8a7296b963@group.calendar.google.com"; // Larkin Boats
 
+const CALENDAR_LIST = [
+  { name: 'Hansen Truck Calendar', id: TRUCK_1_CAL_ID },
+  { name: 'Larkin Truck Calendar', id: TRUCK_2_CAL_ID },
+  { name: 'Hansen/Walsh Boat Calendar', id: BOAT_1_CAL_ID },
+  { name: 'Larkin Boat Calendar', id: BOAT_2_CAL_ID }
+];
+
 const DEFAULT_VEHICLES = [
   { id: 'truck-hansen', name: 'Hansen Lab Truck', brand: 'Ford', model: 'F-250 Super Duty', category: 'Truck', location: 'Campus Parking Bay A', keyLocation: 'Main Office Cabinet #1', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
   { id: 'truck-larkin', name: 'Larkin Lab Truck', brand: 'Chevrolet', model: 'Silverado 2500', category: 'Truck', location: 'Campus Parking Bay B', keyLocation: 'Larkin Lab Key Box', status: 'available', notionUrl: 'https://notion.so', imageUrl: '' },
@@ -13,7 +20,6 @@ const DEFAULT_VEHICLES = [
   { id: 'craft-1', name: 'Field Research Canoe', brand: 'Old Town', model: 'Discovery 169', category: 'Non-Motorized Craft', location: 'Boathouse Storage Rack 3', keyLocation: 'Boathouse Padlock #2', status: 'available', notionUrl: '', imageUrl: '' }
 ];
 
-// Priority rank helper: Trucks (1) -> Boats (2) -> Non-Motorized Craft (3) -> Anything Else (4)
 function getCategoryRank(category) {
   const c = (category || '').toLowerCase();
   if (c.includes('truck')) return 1;
@@ -28,6 +34,7 @@ export default function App() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [showCalMenu, setShowCalMenu] = useState(false);
   const [notionConnected, setNotionConnected] = useState(false);
   const [notionStatusMsg, setNotionStatusMsg] = useState('Checking Notion connection...');
 
@@ -99,7 +106,6 @@ export default function App() {
             };
           });
 
-          // Sort assets by custom rank: Trucks -> Boats -> Non-Motorized -> Other
           parsed.sort((a, b) => {
             const rankA = getCategoryRank(a.category);
             const rankB = getCategoryRank(b.category);
@@ -120,7 +126,6 @@ export default function App() {
     fetchNotionData();
   }, []);
 
-  // Dynamically derive unique category buttons, sorted by rank
   const uniqueCats = Array.from(new Set(vehicles.map(v => v.category))).filter(Boolean);
   uniqueCats.sort((a, b) => getCategoryRank(a) - getCategoryRank(b));
   const dynamicCategories = ['all', ...uniqueCats];
@@ -202,16 +207,42 @@ export default function App() {
             </span>
           </div>
           <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>
-            Multi-Vehicle Field Operations Portal for Trucks, Boats, & Non-Motorized Craft
+            Multi-Vehicle Field Operations Portal for Trucks, Boats, & Fleet Equipment
           </p>
         </div>
 
-        <button 
-          onClick={() => setIsAdminMode(!isAdminMode)}
-          style={{ padding: '8px 16px', backgroundColor: isAdminMode ? '#78350f' : '#1e293b', color: isAdminMode ? '#fde68a' : '#cbd5e1', border: '1px solid #475569', cursor: 'pointer', borderRadius: '8px', fontSize: '14px' }}
-        >
-          {isAdminMode ? 'Exit Admin Mode' : 'Admin & Photo Editor'}
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', position: 'relative' }}>
+          <div>
+            <button 
+              onClick={() => setShowCalMenu(!showCalMenu)}
+              style={{ padding: '8px 16px', backgroundColor: '#0284c7', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}
+            >
+              📅 View Live Calendars ▾
+            </button>
+            {showCalMenu && (
+              <div style={{ position: 'absolute', right: '170px', top: '44px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '8px', zIndex: 50, width: '220px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)' }}>
+                {CALENDAR_LIST.map((cal) => (
+                  <a
+                    key={cal.id}
+                    href={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(cal.id)}&ctz=America%2FChicago`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ display: 'block', padding: '8px 10px', color: '#38bdf8', textDecoration: 'none', fontSize: '12px', borderBottom: '1px solid #334155' }}
+                  >
+                    ↗ {cal.name}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button 
+            onClick={() => setIsAdminMode(!isAdminMode)}
+            style={{ padding: '8px 16px', backgroundColor: isAdminMode ? '#78350f' : '#1e293b', color: isAdminMode ? '#fde68a' : '#cbd5e1', border: '1px solid #475569', cursor: 'pointer', borderRadius: '8px', fontSize: '14px' }}
+          >
+            {isAdminMode ? 'Exit Admin Mode' : 'Admin & Photo Editor'}
+          </button>
+        </div>
       </header>
 
       {!notionConnected && (
@@ -231,7 +262,6 @@ export default function App() {
               style={{ width: '260px', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 12px', color: '#f8fafc' }}
             />
 
-            {/* Custom Sorted Category Buttons */}
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {dynamicCategories.map((cat) => (
                 <button
@@ -257,8 +287,8 @@ export default function App() {
 
           <div style={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
             <div style={{ borderBottom: '1px solid #1e293b', paddingBottom: '12px', marginBottom: '16px', fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between' }}>
-      
-              <span style={{ color: '#38bdf8', textTransform: 'none' }}>Click tiles to select</span>
+              <span>Available Fleet Assets</span>
+              <span style={{ color: '#38bdf8', textTransform: 'none' }}>Click tiles to select multiple assets</span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
@@ -359,11 +389,6 @@ export default function App() {
                         )}
                         <div style={{ fontSize: '11px', color: '#38bdf8', marginTop: '2px' }}>🔑 Key: {v.keyLocation}</div>
                         <div style={{ fontSize: '11px', color: '#94a3b8' }}>📍 Station: {v.location}</div>
-                        {v.notionUrl && (
-                          <a href={v.notionUrl} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: '#60a5fa', textDecoration: 'underline', marginTop: '4px', display: 'inline-block' }}>
-                            View Maintenance Logs in Notion
-                          </a>
-                        )}
                       </div>
                     ))}
                   </div>
