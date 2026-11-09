@@ -6,12 +6,13 @@ const TRUCK_2_CAL_ID = "c_6br43pl0vad2su7ldibiillg2o@group.calendar.google.com";
 const BOAT_1_CAL_ID = "c_64a563c76f037a43bb5816c4ddf724d6025b18faf4a2aa9a3c35b56ae36039fc@group.calendar.google.com"; // Hansen/Walsh Lab Boats
 const BOAT_2_CAL_ID = "c_5fb23aa1750177240b46b54ccb1782b68e8ab0468957d63ac1219a8a7296b963@group.calendar.google.com"; // Larkin Boats
 
-// Combined URL with updated color parameters: Hansen Truck (Grey), Larkin Truck (Blue), Hansen Boat (Green), Larkin Boat (Red)
+// Combined Google Calendar URL with showCalendars=1 enabling the left-side checkbox sidebar
 const COMBINED_CAL_URL = `https://calendar.google.com/calendar/embed?` +
   `src=${encodeURIComponent(TRUCK_1_CAL_ID)}&color=%2364748b&` +
   `src=${encodeURIComponent(TRUCK_2_CAL_ID)}&color=%232563eb&` +
   `src=${encodeURIComponent(BOAT_1_CAL_ID)}&color=%23059669&` +
   `src=${encodeURIComponent(BOAT_2_CAL_ID)}&color=%23dc2626&` +
+  `showCalendars=1&` +
   `ctz=America%2FChicago`;
 
 const CALENDAR_LIST = [
@@ -205,10 +206,16 @@ export default function App() {
 
     const links = selectedVehicles.map((vehicle) => {
       const calId = getTargetCalendarId(vehicle);
-      const title = encodeURIComponent(`${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
+      const title = encodeURIComponent(`Reservation: ${vehicle.name}${vehicle.model ? ` (${vehicle.model})` : ''}`);
       const details = encodeURIComponent(
-        `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nKey Location: ${vehicle.keyLocation}\nVehicle Location: ${vehicle.location}\nTrip Notes: ${notes}\nNotion Maintenance Records: ${vehicle.notionUrl || 'N/A'}`
+        `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nKey Location: ${vehicle.keyLocation}\nVehicle Location: ${vehicle.location}\nTrip Notes: ${notes}`
       );
+
+      return {
+        vehicleName: vehicle.name,
+        url: `https://calendar.google.com/calendar/render?action=TEMPLATE&src=${encodeURIComponent(calId)}&text=${title}&dates=${startISO}/${endISO}&details=${details}&location=${location}&ctz=America%2FChicago`
+      };
+    });
 
     setGeneratedCalendarLinks(links);
     setBookingSuccess(true);
@@ -246,7 +253,7 @@ export default function App() {
             {showCalMenu && (
               <div style={{ position: 'absolute', right: '170px', top: '44px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '10px', zIndex: 50, width: '280px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.6)' }}>
                 <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>
-                  Calendar Color Legend & Views
+                  Select Calendar View
                 </div>
                 {CALENDAR_LIST.map((cal, idx) => (
                   <a
@@ -294,27 +301,6 @@ export default function App() {
           <strong>Sync Status:</strong> {notionStatusMsg}
         </div>
       )}
-
-      {/* Standalone Calendar Color Key Banner */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto 16px auto', padding: '10px 16px', backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', fontSize: '12px' }}>
-        <span style={{ color: '#94a3b8', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '11px' }}>Calendar Key:</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#64748b' }} />
-          <span>Hansen Truck (Grey)</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#2563eb' }} />
-          <span>Larkin Truck (Blue)</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#059669' }} />
-          <span>Hansen/Walsh Boat (Green)</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#dc2626' }} />
-          <span>Larkin Boat (Red)</span>
-        </div>
-      </div>
 
       <main style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
         <section>
