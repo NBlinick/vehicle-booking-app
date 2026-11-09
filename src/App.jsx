@@ -19,7 +19,7 @@ const CALENDAR_LIST = [
     id: 'combined',
     name: 'Combined View', 
     url: COMBINED_CAL_URL, 
-    color: '#34d399',
+    color: '#38a2be2',
     isCombined: true
   },
   { 
