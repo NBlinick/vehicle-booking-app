@@ -121,7 +121,7 @@ export default function App() {
                            props['Key Location']?.rich_text?.[0]?.plain_text || 
                            'Contact Lab Manager';
 
-            const location = props['Location']?.select?.name || props['Location']?.rich_text?.[0]?.plain_text || 'Field Garage';
+            const location = props['Location']?.select?.name || props['Location']?.rich_text?.[0]?.plain_text || 'Contact Lab Manager';
 
             return {
               id: page.id,
@@ -211,12 +211,7 @@ export default function App() {
         `Reserved by: ${userName} (${userEmail})\nVehicle/Asset: ${vehicle.name}\nBrand & Model: ${vehicle.brand || 'N/A'} ${vehicle.model || ''}\nKey Location: ${vehicle.keyLocation}\nVehicle Location: ${vehicle.location}\nTrip Notes: ${notes}`
       );
 
-      return {
-        vehicleName: vehicle.name,
-        url: `https://calendar.google.com/calendar/render?action=TEMPLATE&src=${encodeURIComponent(calId)}&text=${title}&dates=${startISO}/${endISO}&details=${details}&location=${location}&ctz=America%2FChicago`
-      };
-    });
-
+#####
     setGeneratedCalendarLinks(links);
     setBookingSuccess(true);
   };
