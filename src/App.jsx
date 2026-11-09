@@ -564,7 +564,7 @@ export default function App() {
               })}
             </div>
 
-            <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #334155', fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
+           # <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #334155', fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
               <span style={{ color: '#34d399', fontWeight: 'bold' }}>Color Legend:</span>
               <ul style={{ paddingLeft: '16px', margin: '8px 0 0 0' }}>
                 <li><span style={{ color: '#64748b' }}>●</span> Hansen Truck (Grey)</li>
